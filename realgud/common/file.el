@@ -70,6 +70,8 @@ at LINE-NUMBER or nil if it is not there"
   (seq-find '(lambda (file-re) (string-match file-re filename)) ignore-re-file-list))
 
 ;; FIXME: should allow column number to be passed in.
+;; FIXME: cmd-marker is not actually optional...
+;; FIXME: cmd-marker is sometimes used as a buffer sometimes as a marker!
 (defun realgud:file-loc-from-line(filename line-number
 					   &optional cmd-marker source-text bp-num
 					   find-file-fn directory)
@@ -117,9 +119,9 @@ problem as best as we can determine."
 	  ;; the list of buffers seen, use that
 	  ((and
 	    (setq buffer-files
-		  (with-current-buffer (marker-buffer cmd-marker)
-		    (mapcar (lambda (buf) (buffer-file-name buf))
-			    (realgud-cmdbuf-info-srcbuf-list realgud-cmdbuf-info))))
+		        (with-current-buffer (if (bufferp cmd-marker) cmd-marker (marker-buffer cmd-marker))
+		          (mapcar (lambda (buf) (buffer-file-name buf))
+			                (realgud-cmdbuf-info-srcbuf-list realgud-cmdbuf-info))))
 	    (setq matching-file-list (realgud--file-matching-suffix buffer-files filename))
 	    (car matching-file-list))
      (setq filename (car matching-file-list)))
