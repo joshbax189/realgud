@@ -789,27 +789,25 @@ loc-regexp pattern"
    after the prompt-regexp-prompt. If not found return nil."
   (with-current-buffer cmdbuf
     ;; (message "+++3 %s, buf: %s" text (buffer-name))
-    (if (realgud-cmdbuf?)
-	(let* ((prompt-pat (realgud-cmdbuf-pat "prompt"))
-	       (prompt-regexp (realgud-loc-pat-regexp prompt-pat))
-	       )
-	  (if prompt-regexp
-	      (if (string-match prompt-regexp text)
-		  (progn
-		    (setq realgud-track-divert-string
-			  (substring text 0 (match-beginning 0)))
-		    ;; We've got desired output, so reset divert output.
-		    (realgud-cmdbuf-info-divert-output?= nil)
-		    (cond ((search-backward-regexp prompt-regexp)
-			   (kill-region realgud-last-output-start (point))
-			   (goto-char (point-max)))
-			  ('t (kill-region realgud-last-output-start to)))
-		    )
-	      ))
-	  )
-      )
-    )
-  )
+    (when (realgud-cmdbuf?)
+	    (let* ((prompt-pat (realgud-cmdbuf-pat "prompt"))
+	           (prompt-regexp (realgud-loc-pat-regexp prompt-pat)))
+	      (when prompt-regexp
+          (let ((match-index (string-match prompt-regexp text nil 't)))
+		        (setq realgud-track-divert-string
+			            (if match-index
+                      (substring text 0 match-index)
+                    ;; if no match assume entire string is the output...
+                    text)))
+		      ;; We've got desired output, so reset divert output.
+		      (realgud-cmdbuf-info-divert-output?= nil))))))
+          ;; skip this step, doesn't always work...
+		      ;; (cond
+          ;;  ((search-backward-regexp prompt-regexp)
+			    ;;   (kill-region realgud-last-output-start (point))
+			    ;;   (goto-char (point-max)))
+			    ;;  ('t
+          ;;   (kill-region realgud-last-output-start to))))))))
 
 (defun realgud-goto-line-for-loc-pat (pt &optional opt-realgud-loc-pat)
   "Display the location mentioned in line described by
