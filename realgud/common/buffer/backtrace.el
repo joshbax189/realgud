@@ -124,9 +124,10 @@
 	(while (and (eq 'run (process-status process))
 		    (null realgud-track-divert-string)
 		    (> 1000 (setq sleep-count (1+ sleep-count))))
-	  (sleep-for 0.001)
-	  )
-	(if (>= sleep-count 1000)
+	  (sleep-for 0.001))
+
+  ;; HACK: disable timeout check
+	(if (and (>= sleep-count 1000) nil)
 	    (message "Timeout on running debugger command")
 	  ;; else
 	  ;; (message "+++4 %s" realgud-track-divert-string)
